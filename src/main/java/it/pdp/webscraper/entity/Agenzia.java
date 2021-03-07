@@ -21,7 +21,7 @@ public class Agenzia {
 	
 	@Override
 	public String toString() {
-		return String.format("Customer[id_agenzia=%d, nome=%s]", idAgenzia, nome);
+		return String.format("Agenzia[id_agenzia=%d, nome=%s]", idAgenzia, nome);
 	}
 	
 	public long getIdAgenzia() {
