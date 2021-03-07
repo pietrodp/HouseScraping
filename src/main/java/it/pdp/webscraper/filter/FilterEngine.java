@@ -2,8 +2,6 @@ package it.pdp.webscraper.filter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 import it.pdp.webscraper.bean.AnnuncioBean;
 import it.pdp.webscraper.utility.MyConfiguration;

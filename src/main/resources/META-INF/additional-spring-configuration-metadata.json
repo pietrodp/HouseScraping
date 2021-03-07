@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "agenzia.agenzia_test.home",
+    "type": "java.lang.String",
+    "description": "A description for 'agenzia.agenzia_test.home'"
+  },
+  {
+    "name": "agenzia.tecnocasa.home",
+    "type": "java.lang.String",
+    "description": "A description for 'agenzia.tecnocasa.home'"
+  },
+  {
+    "name": "agenzia.tecnorete.home",
+    "type": "java.lang.String",
+    "description": "A description for 'agenzia.tecnorete.home'"
+  },
+  {
+    "name": "agenzie.abilitate",
+    "type": "java.lang.String",
+    "description": "A description for 'agenzie.abilitate'"
+  },
+  {
+    "name": "filtri.mandatory",
+    "type": "java.lang.String",
+    "description": "A description for 'filtri.mandatory'"
+  },
+  {
+    "name": "filtri.opzionali",
+    "type": "java.lang.String",
+    "description": "A description for 'filtri.opzionali'"
+  },
+  {
+    "name": "salvataggio.file",
+    "type": "java.lang.String",
+    "description": "A description for 'salvataggio.file'"
+  }
+]}
