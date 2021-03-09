@@ -1,18 +1,32 @@
 package it.pdp.webscraper.bean;
 
-public class AnnuncioBean {
+import java.util.ArrayList;
+
+import it.pdp.webscraper.bean.decorator.GenericAnnuncio;
+import it.pdp.webscraper.filter.FilterBean;
+
+public class AnnuncioBean extends GenericAnnuncio{
 	
+	private String agenzia;
 	private String titoloAnnucio;
-	private String html;
 	private String idAnnuncio;
-	private String prezzo;
+	private Integer prezzo;
 	private String url;
+	private ArrayList<FilterBean> matchedFilters;
 	
+	public AnnuncioBean() {
+		
+	}
 	
 	public AnnuncioBean(String url, String pageHtml) {
 		this.url = url;
-		this.html = pageHtml;
+		super.html = pageHtml;
 	}
+	
+	public AnnuncioBean(String url) {
+		this.url = url;
+	}
+	
 	
 	public String getTitoloAnnucio() {
 		return titoloAnnucio;
@@ -32,10 +46,10 @@ public class AnnuncioBean {
 	public void setIdAnnuncio(String idAnnuncio) {
 		this.idAnnuncio = idAnnuncio;
 	}
-	public String getPrezzo() {
+	public Integer getPrezzo() {
 		return prezzo;
 	}
-	public void setPrezzo(String prezzo) {
+	public void setPrezzo(Integer prezzo) {
 		this.prezzo = prezzo;
 	}
 	public String getUrl() {
@@ -44,10 +58,21 @@ public class AnnuncioBean {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
-	
 
-	
-	
+	public ArrayList<FilterBean> getMatchedFilters() {
+		return matchedFilters;
+	}
 
+	public void setMatchedFilters(ArrayList<FilterBean> matchedFilters) {
+		this.matchedFilters = matchedFilters;
+	}
+
+	public String getAgenzia() {
+		return agenzia;
+	}
+
+	public void setAgenzia(String agenzia) {
+		this.agenzia = agenzia;
+	}
+	
 }

@@ -20,6 +20,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import it.pdp.webscraper.bean.AnnuncioBean;
 import it.pdp.webscraper.bean.PaginaBean;
 import it.pdp.webscraper.utility.MyConfiguration;
 
@@ -67,8 +68,8 @@ public class AbstractNavigator {
 		}
 	
 	//recuper gli indirizzi di tutti gli annunci in una pagina
-		public ArrayList<String> getAnnunci(ArrayList<PaginaBean> list){
-			ArrayList<String> listURLannunci = new ArrayList<>();
+		public ArrayList<AnnuncioBean> getAnnunciUrl(ArrayList<PaginaBean> list){
+			ArrayList<AnnuncioBean> listAnnunciWithURL = new ArrayList<>();
 			for (PaginaBean paginaBean : list) {
 				InputStream stream = new ByteArrayInputStream(paginaBean.getHtml().getBytes(StandardCharsets.UTF_8));
 				Document doc;
@@ -79,7 +80,7 @@ public class AbstractNavigator {
 					Object result = expr.evaluate(doc, XPathConstants.NODESET);
 					NodeList nodes = (NodeList) result;
 					for (int i = 0; i < nodes.getLength(); i++) {
-						listURLannunci.add(basePathAnnuncio.replace("#placeHolder#", nodes.item(i).getNodeValue()));
+						listAnnunciWithURL.add(new AnnuncioBean(basePathAnnuncio.replace("#placeHolder#", nodes.item(i).getNodeValue())));
 					}
 
 				} catch (SAXException e) {
@@ -91,7 +92,7 @@ public class AbstractNavigator {
 				}
 
 			}
-			return listURLannunci;
+			return listAnnunciWithURL;
 		}
 	
 	

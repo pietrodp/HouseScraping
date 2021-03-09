@@ -3,20 +3,27 @@ package it.pdp.webscraper.filter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.pdp.webscraper.bean.AnnuncioBean;
+import it.pdp.webscraper.controller.WebScruperController;
 import it.pdp.webscraper.utility.MyConfiguration;
 
 public class FilterEngine {
+	
+	private static final Logger LOGGER=LoggerFactory.getLogger(FilterEngine.class);
 
 	ArrayList<FilterBean> filtri = new ArrayList<FilterBean>();
-	HashMap<String, ArrayList<FilterBean>> annunciCorrispondenti = new HashMap<>();
 
 	public FilterEngine() {
 		buildFilter();
 	}
 
 
-	public HashMap<String, ArrayList<FilterBean>> filterAnnunciNonValidi(ArrayList<AnnuncioBean> listAnnunciRecuperati) {
+	public ArrayList<AnnuncioBean> filterAnnunciNonValidi(ArrayList<AnnuncioBean> listAnnunciRecuperati) {
+		
+		ArrayList<AnnuncioBean> listaAnnunciValidi = new ArrayList<AnnuncioBean>();
 
 		for (AnnuncioBean annuncioBean : listAnnunciRecuperati) {
 
@@ -27,10 +34,12 @@ public class FilterEngine {
 				}
 			}
 			if(filtriMatched.size()>0) {
-				annunciCorrispondenti.put(annuncioBean.getUrl(), filtriMatched);
+				annuncioBean.setMatchedFilters(filtriMatched);
+				listaAnnunciValidi.add(annuncioBean);
 			}
 		}
-		return annunciCorrispondenti;
+		LOGGER.info("Recuperati "+listaAnnunciValidi.size()+" annunci Validi");
+		return listaAnnunciValidi;
 	}
 
 

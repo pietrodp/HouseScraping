@@ -21,7 +21,7 @@ public class NavigatorFactory {
 			break;
 
 		case Costants.TECNOCASA:
-			navigator = new TecnoreteNavigator();
+			navigator = new TecnocasaNavigator();
 			break;
 			
 		case Costants.TEST:

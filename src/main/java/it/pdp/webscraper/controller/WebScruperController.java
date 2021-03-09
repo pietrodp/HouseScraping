@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import it.pdp.webscraper.bean.AnnuncioBean;
 import it.pdp.webscraper.bean.PaginaBean;
+import it.pdp.webscraper.bean.decorator.DecoratoreAnnunci;
 import it.pdp.webscraper.clients.ClientAbastract;
 import it.pdp.webscraper.clients.ClientFactory;
 import it.pdp.webscraper.filter.FilterBean;
@@ -30,6 +33,8 @@ import it.pdp.webscraper.utility.ScritturaFile;
 @RestController
 public class WebScruperController {
 
+	private static final Logger LOGGER=LoggerFactory.getLogger(WebScruperController.class);
+
 	@Autowired
 	public Environment env;
 	private String output;
@@ -39,13 +44,12 @@ public class WebScruperController {
 
 		//readParameters
 		String[] agenzieAbilitate = env.getProperty("agenzie.abilitate").split(",");
-		
+
 		//set Context
 		setContext();
 
 		//Istanzio le agenzie abilitate
-		ArrayList<ClientAbastract> clientsAgenzieAbilitate = new ArrayList<>();
-		clientsAgenzieAbilitate = readAganciesEnables(agenzieAbilitate);
+		ArrayList<ClientAbastract> clientsAgenzieAbilitate = readAganciesEnables(agenzieAbilitate);
 
 		//Istanzio i lettori dei DOM
 		this.factoryNavigator(agenzieAbilitate);
@@ -55,29 +59,28 @@ public class WebScruperController {
 
 		try {
 			for(int i=0; i<clientsAgenzieAbilitate.size(); i++) {
-				
+
 				//recupero la homePage dal WEB dell'aganzia
 				String htmlHomepage =  clientsAgenzieAbilitate.get(i).getHomePage();
-				
-				if(MyConfiguration.getProperty("salvataggio.file").equals("true")) {
-					ScritturaFile.creazioneNewFile("testPage.html");
-					ScritturaFile.writeFile(htmlHomepage, "testPage.html");
-				}
-				
+
+				salvataggioTestPage(htmlHomepage);
+
 				//Recupero tutte le pagine di annunci presenti sul sito
 				ArrayList<PaginaBean> listPagineSito = retrievePagineAnnunci(clientsAgenzieAbilitate.get(i), htmlHomepage);
 
 				//Recupero tutti gli Html degli annunci presenti sul sito
-				ArrayList<AnnuncioBean> listAnnunciRecuperati = new ArrayList<>();
-				listAnnunciRecuperati = this.retrieveAnnunciAgenzia(clientsAgenzieAbilitate.get(i), listPagineSito);
+				ArrayList<AnnuncioBean> listAnnunciRecuperati = this.retrieveAnnunciAgenzia(clientsAgenzieAbilitate.get(i), listPagineSito);
 
 				//filtro solo gli annunci validi
-				HashMap<String, ArrayList<FilterBean>> listAnnunciValidi = new HashMap<String, ArrayList<FilterBean>>();
-				listAnnunciValidi = filter.filterAnnunciNonValidi(listAnnunciRecuperati);
-				System.out.println("Recuperati "+listAnnunciValidi.size()+" annunci Validi");
+				ArrayList<AnnuncioBean> listAnnunciValidi = filter.filterAnnunciNonValidi(listAnnunciRecuperati);
+				
+				@SuppressWarnings("unused")
+				ArrayList<AnnuncioBean> annunciDecorati = DecoratoreAnnunci.decorator(listAnnunciValidi);
 
-				//scrittura output
-				output = ScritturaFile.scritturaOutput(listAnnunciValidi);
+				System.out.println("DONE");
+				//scrittura file html di output
+//				scriviOutputFileHtml(listAnnunciValidi);
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -89,9 +92,30 @@ public class WebScruperController {
 
 
 
+	private void salvataggioTestPage(String htmlHomepage) {
+		if(Boolean.TRUE.equals(Boolean.valueOf(MyConfiguration.getProperty("salvataggio.file")))) {
+			ScritturaFile.creazioneNewFile("testPage.html");
+			ScritturaFile.writeFile(htmlHomepage, "testPage.html");
+		}
+	}
+
+
+
+
+
+//	private void scriviOutputFileHtml(HashMap<String, ArrayList<FilterBean>> listAnnunciValidi) {
+//		if(Boolean.TRUE.equals(Boolean.valueOf(MyConfiguration.getProperty("scrittura.file.output")))) {
+//			output = ScritturaFile.scritturaOutput(listAnnunciValidi);
+//		}
+//	}
+
+
+
+
+
 	private ArrayList<PaginaBean> retrievePagineAnnunci(ClientAbastract agenziaAbilitata, String htmlHomepage)
 			throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-		
+
 		//recupero gli URL di tutte le pagine di annunci del sito (tramite xPath)
 		HashMap<String, String> listPagineSito = agenziaAbilitata.navigator.getPages(htmlHomepage);
 		ArrayList<PaginaBean> pagineListaAnnunci = new ArrayList<>(); 
@@ -102,11 +126,11 @@ public class WebScruperController {
 		while (iterator.hasNext()) {
 			Map.Entry<String, String> pair = (Map.Entry<String, String>) iterator.next();
 			String html = agenziaAbilitata.getPageHtml(pair.getValue());
-			System.out.println(pair.getKey() + " = " + pair.getValue() +" ("+count+" di "+listPagineSito.size()+")");
 			pagineListaAnnunci.add(new PaginaBean(pair.getKey(), pair.getValue(), html));
+			LOGGER.info(pair.getKey() + " = " + pair.getValue() +" ("+count+" di "+listPagineSito.size()+")");
 			count++;
 		}
-		
+
 		return pagineListaAnnunci;
 	}
 
@@ -114,19 +138,20 @@ public class WebScruperController {
 	private ArrayList<AnnuncioBean> retrieveAnnunciAgenzia(ClientAbastract agenziaAbilitata, ArrayList<PaginaBean> listPagineSito) {
 		int count;
 		//recupero gli URL di tutti gli annunci per tutte pagine caricate (tramite xPath)
-		ArrayList<String> listURLannunci = agenziaAbilitata.navigator.getAnnunci(listPagineSito);
-		System.out.println("Totale annunci disponibili per Napoli: "+listURLannunci.size()+" (Ancora da filtrare)");
+		ArrayList<AnnuncioBean> listURLannunci = agenziaAbilitata.navigator.getAnnunciUrl(listPagineSito);
+		LOGGER.info("Totale annunci disponibili per Napoli: "+listURLannunci.size()+" (Ancora da filtrare)");
 
 		//recupero HTML annunci
 		count = 1;
 		ArrayList<AnnuncioBean> listAnnunciRecuperati = new ArrayList<>();
-		for (String url : listURLannunci) {
-			System.out.println("Annunci scaricati "+count+" di "+listURLannunci.size());
-			AnnuncioBean annuncioBean = new AnnuncioBean(url, agenziaAbilitata.getPageHtml(url));
+		for (AnnuncioBean annuncioBean : listURLannunci) {
+			LOGGER.info("Annunci scaricati "+count+" di "+listURLannunci.size());
+			annuncioBean.setHtml(agenziaAbilitata.getPageHtml(annuncioBean.getUrl()));
+			annuncioBean.setAgenzia(agenziaAbilitata.agenzia);
 			listAnnunciRecuperati.add(annuncioBean);
 			count++;
 		}
-		
+
 		return listAnnunciRecuperati;
 	}
 
@@ -138,7 +163,7 @@ public class WebScruperController {
 		}
 		return clientsAgenzieAbilitate;
 	}
-	
+
 	private ArrayList<INavigator> factoryNavigator(String[] agenzieAbilitate) throws ParserConfigurationException {
 		ArrayList<INavigator> collectionNavigator = new ArrayList<>();
 		for (int i = 0; i < agenzieAbilitate.length; i++) {
