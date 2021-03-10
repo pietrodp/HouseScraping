@@ -1,6 +1,10 @@
 package it.pdp.webscraper.bean.decorator;
 
+import java.io.IOException;
+
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import it.pdp.webscraper.bean.AnnuncioBean;
 import it.pdp.webscraper.costants.Costants;
@@ -12,11 +16,11 @@ public class DecoratorFactory {
 		super();
 	}
 
-	public static GenericAnnuncio selectDecorator(AnnuncioBean annuncioBean) throws ParserConfigurationException {
+	public static GenericAnnuncio selectDecorator(AnnuncioBean annuncioBean) throws ParserConfigurationException, SAXException, IOException {
 		
 		GenericAnnuncio genericAnnuncio = null;
 		
-		switch (annuncioBean.getAgenzia()) {
+		switch (annuncioBean.getNomeAgenzia()) {
 		case Costants.TECNORETE:
 			genericAnnuncio = new ExtraInfoTecnoreteDecorator(annuncioBean);
 			break;

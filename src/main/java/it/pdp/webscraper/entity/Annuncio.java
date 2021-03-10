@@ -1,9 +1,16 @@
 package it.pdp.webscraper.entity;
 
+import java.util.ArrayList;
+
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import it.pdp.webscraper.filter.FilterBean;
 
 @Entity
 public class Annuncio {
@@ -14,13 +21,29 @@ public class Annuncio {
 	private String link;
 	private String id_annuncio;
 	private String matches;
-	private long id_agenzia;
+	
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_agenzia", nullable = false)
+    private Agenzia agenzia;
 	
 	protected Annuncio() {}
 	
+	public Annuncio(String idAnnuncio, String link, ArrayList<FilterBean> listMatch, Agenzia agenzia) {
+		this.link = link;
+		this.id_annuncio = idAnnuncio;
+		StringBuilder tmpBuilder = new StringBuilder();
+		
+		for (FilterBean filterBean : listMatch) {
+			tmpBuilder.append(filterBean.getFiltro());
+		}
+		this.matches = tmpBuilder.toString();
+		this.agenzia = agenzia;
+		
+	}
+	
 	@Override
 	public String toString() {
-		return String.format("Annuncio[id=%d, link=%s, id_annuncio=%s, matches=%s, id_agenzia=%d]", id, link, id_annuncio, matches, id_agenzia);
+		return String.format("Annuncio[id=%d, link=%s, id_annuncio=%s, matches=%s]", id, link, id_annuncio, matches);
 	}
 
 	public long getId() {
@@ -39,9 +62,4 @@ public class Annuncio {
 		return matches;
 	}
 
-	public long getId_agenzia() {
-		return id_agenzia;
-	}
-	
-	
 }

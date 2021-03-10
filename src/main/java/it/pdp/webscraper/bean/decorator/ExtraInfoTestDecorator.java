@@ -17,6 +17,8 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import it.pdp.webscraper.costants.Costants;
+
 public class ExtraInfoTestDecorator extends ExtraInfoDecorator{
 	
 	DocumentBuilderFactory factory;
@@ -25,34 +27,65 @@ public class ExtraInfoTestDecorator extends ExtraInfoDecorator{
 	XPath xpath;
 	String basePathAnnuncio = "";
 	String primaPagina = "";
+	InputStream stream = null;
+	Document doc = null;
 	
-	public ExtraInfoTestDecorator(GenericAnnuncio genericAnnuncio) throws ParserConfigurationException {
+	public ExtraInfoTestDecorator(GenericAnnuncio genericAnnuncio) throws ParserConfigurationException, SAXException, IOException {
 		this.genericAnnuncio = genericAnnuncio;
 		factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true); // never forget this!
 		builder = factory.newDocumentBuilder();
 		xpathfactory = XPathFactory.newInstance();
 		xpath = xpathfactory.newXPath();
+		stream = new ByteArrayInputStream(this.genericAnnuncio.html.getBytes(StandardCharsets.UTF_8));
+		doc = builder.parse(stream);
 	}
 
 	@Override
 	public Integer getPrezzo() {
-		InputStream stream = new ByteArrayInputStream(this.genericAnnuncio.html.getBytes(StandardCharsets.UTF_8));
 		String prezzo="0";
 		
-//		if(this.genericAnnuncio.html.contains("€"))
-//			System.out.println(this.genericAnnuncio.html);
-		
 		try {
-			Document doc = builder.parse(stream);
-			XPathExpression expr = xpath.compile("//span[@class='current-price']");
+			XPathExpression expr = xpath.compile(Costants.PREZZO_TEST_DECORATOR);
 			Object result = expr.evaluate(doc, XPathConstants.STRING);
 			prezzo = (String) result;
 			prezzo = prezzo.replaceAll("\\D+","");
-		} catch (SAXException | IOException | XPathExpressionException e) {
+		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}	
 		return Integer.parseInt(prezzo);
+	}
+
+	@Override
+	public String getIdAnnuncio() {
+		String idAnnuncio = "N/A";
+		
+		try {
+			XPathExpression expr = xpath.compile(Costants.ID_ANNUNCIO_TEST_DECORATOR);
+			Object result = expr.evaluate(doc, XPathConstants.STRING);
+			idAnnuncio = ((String) result).trim();
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+		return idAnnuncio;
+	}
+
+	@Override
+	public String getIndirizzo() {
+		String indirizzo = "N/A";
+		
+		try {
+			XPathExpression expr = xpath.compile(Costants.INDIRIZZO_TEST_DECORATOR);
+			Object result = expr.evaluate(doc, XPathConstants.STRING);
+			indirizzo = ((String) result).trim();
+			indirizzo = indirizzo.replace("\t", "");
+			indirizzo = indirizzo.replace(":", "");
+			indirizzo = indirizzo.trim().replaceAll(" +", " ");
+
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+		return indirizzo;
 	}
 
 }

@@ -1,9 +1,14 @@
 package it.pdp.webscraper.entity;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Agenzia {
@@ -32,5 +37,7 @@ public class Agenzia {
 		return nome;
 	}
 	
+	@OneToMany(mappedBy = "agenzia", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Annuncio> pages;
 
 }

@@ -13,6 +13,7 @@ public class AnnuncioBean extends GenericAnnuncio{
 	private Integer prezzo;
 	private String url;
 	private ArrayList<FilterBean> matchedFilters;
+	private String indirizzo;
 	
 	public AnnuncioBean() {
 		
@@ -67,12 +68,20 @@ public class AnnuncioBean extends GenericAnnuncio{
 		this.matchedFilters = matchedFilters;
 	}
 
-	public String getAgenzia() {
+	public String getNomeAgenzia() {
 		return agenzia;
 	}
 
 	public void setAgenzia(String agenzia) {
 		this.agenzia = agenzia;
+	}
+
+	public String getIndirizzo() {
+		return indirizzo;
+	}
+
+	public void setIndirizzo(String indirizzo) {
+		this.indirizzo = indirizzo;
 	}
 	
 }

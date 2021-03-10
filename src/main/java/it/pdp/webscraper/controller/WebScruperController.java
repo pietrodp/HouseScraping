@@ -13,6 +13,9 @@ import javax.xml.xpath.XPathExpressionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,10 +26,14 @@ import it.pdp.webscraper.bean.PaginaBean;
 import it.pdp.webscraper.bean.decorator.DecoratoreAnnunci;
 import it.pdp.webscraper.clients.ClientAbastract;
 import it.pdp.webscraper.clients.ClientFactory;
+import it.pdp.webscraper.entity.Agenzia;
+import it.pdp.webscraper.entity.Annuncio;
 import it.pdp.webscraper.filter.FilterBean;
 import it.pdp.webscraper.filter.FilterEngine;
 import it.pdp.webscraper.navigator.INavigator;
 import it.pdp.webscraper.navigator.NavigatorFactory;
+import it.pdp.webscraper.repository.AgenziaRepository;
+import it.pdp.webscraper.repository.AnnuncioRepository;
 import it.pdp.webscraper.utility.MyConfiguration;
 import it.pdp.webscraper.utility.ScritturaFile;
 
@@ -34,10 +41,15 @@ import it.pdp.webscraper.utility.ScritturaFile;
 public class WebScruperController {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(WebScruperController.class);
-
+	
 	@Autowired
 	public Environment env;
 	private String output;
+	
+	@Autowired
+	AgenziaRepository agenziaRepository;
+	@Autowired
+	AnnuncioRepository annuncioRepository;
 
 	@RequestMapping("/")
 	String home() throws ParserConfigurationException {
@@ -74,8 +86,9 @@ public class WebScruperController {
 				//filtro solo gli annunci validi
 				ArrayList<AnnuncioBean> listAnnunciValidi = filter.filterAnnunciNonValidi(listAnnunciRecuperati);
 				
-				@SuppressWarnings("unused")
 				ArrayList<AnnuncioBean> annunciDecorati = DecoratoreAnnunci.decorator(listAnnunciValidi);
+				
+				save(annunciDecorati);
 
 				System.out.println("DONE");
 				//scrittura file html di output
@@ -86,6 +99,22 @@ public class WebScruperController {
 			e.printStackTrace();
 		}
 		return output;
+	}
+
+
+
+
+	private void save(ArrayList<AnnuncioBean> annunciDecorati) {
+		
+//		Object sessionFactory = HibernateAnnotationUtil.getSessionFactory();
+//		session = sessionFactory.getCurrentSession();
+//		System.out.println("Session created");
+		
+		Agenzia agenzia = new Agenzia(annunciDecorati.get(0).getNomeAgenzia());
+		agenziaRepository.save(agenzia);
+		for (AnnuncioBean annuncioBean : annunciDecorati) {
+			annuncioRepository.save(new Annuncio(annuncioBean.getNomeAgenzia(), annuncioBean.getUrl(), annuncioBean.getMatchedFilters(), agenzia));
+		}
 	}
 
 

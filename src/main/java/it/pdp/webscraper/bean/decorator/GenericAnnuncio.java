@@ -8,6 +8,8 @@ public abstract class GenericAnnuncio {
 	protected  String html;
 
 	public abstract Integer getPrezzo();
+	public abstract String getIdAnnuncio();
+	public abstract String getIndirizzo();
 
 
 	public String getHtml() {
