@@ -1,12 +1,49 @@
 package it.pdp.webscraper.navigator;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import it.pdp.webscraper.utility.MyConfiguration;
 
 public class TecnocasaNavigator extends AbstractNavigator implements INavigator{
 
 	public TecnocasaNavigator() throws ParserConfigurationException {
 		super.basePathAnnuncio="https://www.tecnocasa.it/vendita/appartamenti/napoli/napoli/#placeHolder#.html";
 	}
+	
+	//Recupero dalla home page il numero tutale di pagine di annunci
+			public HashMap<String, String> getPages(String input) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+
+				HashMap<String, String> pagine = new HashMap<String, String>();
+
+				InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
+				Document doc = builder.parse(stream);
+
+				XPathExpression expr = xpath.compile("/html/body/nav/div/ul/li[last()]/a/@href");
+				Object result = expr.evaluate(doc, XPathConstants.STRING);
+				String url = (String) result;
+				Integer numeroPagineTotali = Integer.valueOf(url.substring(url.indexOf("pag-")+4));
+				System.out.println("Ci sono "+(numeroPagineTotali+1)+" pagine di inserzioni");
+
+				pagine.put("pag-0", primaPagina);
+				if(MyConfiguration.getProperty("salvataggio.file").equals("false")) {
+					for(int i=1; i<=numeroPagineTotali; i++) {
+						pagine.put("pag-"+i, primaPagina+"/pag-"+i);
+					}
+				}
+				return pagine;
+			}
 
 
 }

@@ -89,8 +89,8 @@ public class WebScruperController {
 				ArrayList<AnnuncioBean> annunciDecorati = DecoratoreAnnunci.decorator(listAnnunciValidi);
 				
 				save(annunciDecorati);
+				LOGGER.info("Salvataggio su DB completato per agenzia "+clientsAgenzieAbilitate.get(i));
 
-				System.out.println("DONE");
 				//scrittura file html di output
 //				scriviOutputFileHtml(listAnnunciValidi);
 
@@ -105,10 +105,6 @@ public class WebScruperController {
 
 
 	private void save(ArrayList<AnnuncioBean> annunciDecorati) {
-		
-//		Object sessionFactory = HibernateAnnotationUtil.getSessionFactory();
-//		session = sessionFactory.getCurrentSession();
-//		System.out.println("Session created");
 		
 		Agenzia agenzia = new Agenzia(annunciDecorati.get(0).getNomeAgenzia());
 		agenziaRepository.save(agenzia);

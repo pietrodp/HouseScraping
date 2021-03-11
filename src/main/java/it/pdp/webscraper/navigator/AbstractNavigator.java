@@ -24,7 +24,7 @@ import it.pdp.webscraper.bean.AnnuncioBean;
 import it.pdp.webscraper.bean.PaginaBean;
 import it.pdp.webscraper.utility.MyConfiguration;
 
-public class AbstractNavigator {
+public abstract class AbstractNavigator {
 	
 	
 	
@@ -44,28 +44,9 @@ public class AbstractNavigator {
 		xpath = xpathfactory.newXPath();
 	}
 	
-	//Recupero dalla home page il numero tutale di pagine di annunci
-		public HashMap<String, String> getPages(String input) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
-
-			HashMap<String, String> pagine = new HashMap<String, String>();
-
-			InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
-			Document doc = builder.parse(stream);
-
-			XPathExpression expr = xpath.compile("/html/body/nav/div/ul/li[last()]/a/@href");
-			Object result = expr.evaluate(doc, XPathConstants.STRING);
-			String url = (String) result;
-			Integer numeroPagineTotali = Integer.valueOf(url.substring(url.indexOf("pag-")+4));
-			System.out.println("Ci sono "+(numeroPagineTotali+1)+" pagine di inserzioni");
-
-			pagine.put("pag-0", primaPagina);
-			if(MyConfiguration.getProperty("salvataggio.file").equals("false")) {
-				for(int i=1; i<=numeroPagineTotali; i++) {
-					pagine.put("pag-"+i, primaPagina+"/pag-"+i);
-				}
-			}
-			return pagine;
-		}
+	
+	protected abstract HashMap<String, String> getPages(String input) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException ;
+	
 	
 	//recuper gli indirizzi di tutti gli annunci in una pagina
 		public ArrayList<AnnuncioBean> getAnnunciUrl(ArrayList<PaginaBean> list){

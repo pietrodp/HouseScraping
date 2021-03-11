@@ -15,22 +15,30 @@ public class ClientFactory {
 		
 		ClientAbastract clientAbstract = null;
 		
-		switch (agenzia) {
-		case Costants.TECNORETE:
+		if(agenzia.equals(Costants.TECNORETE)) {
 			clientAbstract = new Client(Costants.TECNORETE);
-			break;
-
-		case Costants.TECNOCASA:
+		} else if (agenzia.equals(Costants.TECNOCASA)) {
 			clientAbstract = new Client(Costants.TECNOCASA);
-			break;
-			
-		case Costants.TEST:
+		} else if(agenzia.equals(Costants.TEST)) {
 			clientAbstract = new ClientTest(Costants.TEST);
-			break;
-			
-		default:
-			break;
 		}
+		
+//		switch (agenzia) {
+//		case Costants.TECNORETE:
+//			clientAbstract = new Client(Costants.TECNORETE);
+//			break;
+//
+//		case Costants.TECNOCASA:
+//			clientAbstract = new Client(Costants.TECNOCASA);
+//			break;
+//			
+//		case Costants.TEST:
+//			clientAbstract = new ClientTest(Costants.TEST);
+//			break;
+//			
+//		default:
+//			break;
+//		}
 		
 		return clientAbstract;
 	}
