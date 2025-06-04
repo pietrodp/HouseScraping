@@ -2,7 +2,7 @@ package it.pdp.webscraper.bean;
 
 public class AnnuncioBean {
 	
-	private String titoloAnnucio;
+       private String titoloAnnuncio;
 	private String html;
 	private String idAnnuncio;
 	private String prezzo;
@@ -14,12 +14,12 @@ public class AnnuncioBean {
 		this.html = pageHtml;
 	}
 	
-	public String getTitoloAnnucio() {
-		return titoloAnnucio;
-	}
-	public void setTitoloAnnucio(String titoloAnnucio) {
-		this.titoloAnnucio = titoloAnnucio;
-	}
+       public String getTitoloAnnuncio() {
+               return titoloAnnuncio;
+       }
+       public void setTitoloAnnuncio(String titoloAnnuncio) {
+               this.titoloAnnuncio = titoloAnnuncio;
+       }
 	public String getHtml() {
 		return html;
 	}
@@ -44,10 +44,4 @@ public class AnnuncioBean {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
-	
-
-	
-	
-
 }
